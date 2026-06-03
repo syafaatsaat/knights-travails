@@ -1,9 +1,9 @@
 export class Node {
   #x = -1;
   #y = -1;
-  #f = -1;
-  #g = -1;
-  #h = -1;
+  #fCost = -1;
+  #gCost = -1;
+  #hCost = -1;
   #boardDim = -1;
 
   #inOpenList = false;
@@ -26,27 +26,27 @@ export class Node {
   }
 
   getFCost() {
-    return this.#f;
+    return this.#fCost;
   }
 
   setFCost(value) {
-    this.#f = value;
+    this.#fCost = value;
   }
 
   getGCost() {
-    return this.#g;
+    return this.#gCost;
   }
 
   setGCost(value) {
-    this.#g = value;
+    this.#gCost = value;
   }
 
   getHCost() {
-    return this.#h;
+    return this.#hCost;
   }
 
   setHCost(value) {
-    this.#h = value;
+    this.#hCost = value;
   }
 
   getInOpenList() {
@@ -140,9 +140,9 @@ export class Node {
   }
 
   reset() {
-    this.#f = -1;
-    this.#g = -1;
-    this.#h = -1;
+    this.#fCost = -1;
+    this.#gCost = -1;
+    this.#hCost = -1;
     this.#inOpenList = false;
     this.#inClosedList = false;
     this.#parentNode = null;

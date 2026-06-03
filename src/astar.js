@@ -26,45 +26,80 @@ export class AStar {
     this.#closedList = [];
   }
 
-  findPath(startNode, destNode) {
-    const openArr = [];
-    const closedArr = [];
-    openArr.push(startNode);
+  #createPath(node, path) {
+    const parentNode = node.getParentNode();
+
+    path.push(node);
+
+    while (parentNode) {
+      path.push(parentNode);
+      parentNode = parentNode.getParentNode();
+    }
+  }
+
+  #findPath(startNode, destNode, path) {
+    let fCost = 0;
+    let gCost = 0;
+    let hCost = 0;
+
+    this.#pushToOpenList(startNode);
 
     while (openArr.length > 0) {
-      openArr.sort((a, b) => a.f - b.f);
-      const currNode = openArr.shift();
+      const currNode = this.#shiftFromOpenList();
+      
+      this.#closedList.push(currNode);
+      currNode.setInClosedList(true);
 
-      // generate 8 successors and set their parents to q
-      const successors = this.#findPossibleMoves(currNode);
-      // foreach successor
-      successors.forEach((succ) => {
-        // if succ === dest, stop search
-        // else
-            // succ.g = q.g + dist between succ and q
-            // succ.h = dist from dest to succ / use euclidean heuristics
-            // succ.f = succ.g + succ.h
-        if (succ === destNode)
-          break;
+      if (currNode === destNode) {
+        this.createPath(currNode, path);
+        return true;
+      }
+      
+      const moveNeighbours = currNode.getMoveNeighbours();
+      moveNeighbours.forEach((neighbourNode) => {
+        gCost = currNode.getGCost() + 
+          neighbourNode.computeEuclideanDist(currNode);
         
-        succ.g = currNode.g + succ.computeEuclideanDist(currNode);
-        succ.h = succ.computeEuclideanDist(destNode);
-        
-        // if succ already exists in open list and that succ.f is lower, skip
-        if (openArr.includes(succ) && succ.f < succ.g + succ.h)
+        if ((neighbourNode.getInOpenList() || neighbourNode.getInClosedList()) 
+          && neighbourNode.getGCost() < gCost) 
+        {
           continue;
+        }
+
+        neighbourNode.setParentNode(currNode);
+        neighbourNode.setGCost(gCost);
+
+        hCost = neighbourNode.computeEuclideanDist(destNode);
+        neighbourNode.setHCost(hCost);
+
+        fCost = gCost + hCost;
+        neighbourNode.setFCost(fCost);
         
-        // if succ already exists in closed list and that succ.f is lower, skip
-        if (closedArr.includes(succ) && succ.f < succ.g + succ.h)
-          continue;
-        
-        openArr.push(succ);
-      })
-          
-    
-      closedArr.push(currNode);
+        if (neighbourNode.getInClosedList())
+          neighbourNode.setInClosedList(false);
+
+        if (!neighbourNode.getInOpenList())
+          this.#pushToOpenList(neighbourNode);
+      });
     }
 
-    return closedArr;
+    return false;
+  }
+
+  computeOptimalPath(startNode, destNode, pathArray) {
+    const nodePath = [];
+
+    const foundPath = this.#findPath(startNode, destNode, nodePath);
+
+    this.#reset();
+
+    if (!foundPath)
+      return false;
+
+    nodePath.forEach((node) => {
+      pathArray.unshift(node);
+    });
+
+    return true;
   }
 }
