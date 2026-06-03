@@ -1,159 +1,4 @@
-export class Node {
-  #x = -1;
-  #y = -1;
-  #f = -1;
-  #g = -1;
-  #h = -1;
-  #boardDim = -1;
-
-  #inOpenList = false;
-  #inClosedList = false;
-  #parentNode = null;
-
-  #moveNeighbours = [];
-
-  constructor(x, y, boardDim) {
-    this.#x = x;
-    this.#y = y;
-    this.#boardDim = boardDim;
-  }
-
-  getCoords() {
-    return {
-      x: this.#x,
-      y: this.#y
-    };
-  }
-
-  getFCost() {
-    return this.#f;
-  }
-
-  setFCost(value) {
-    this.#f = value;
-  }
-
-  getGCost() {
-    return this.#g;
-  }
-
-  setGCost(value) {
-    this.#g = value;
-  }
-
-  getHCost() {
-    return this.#h;
-  }
-
-  setHCost(value) {
-    this.#h = value;
-  }
-
-  getInOpenList() {
-    return this.#inOpenList;
-  }
-
-  setInOpenList(value) {
-    this.#inOpenList = value;
-  }
-
-  getInClosedList() {
-    return this.#inClosedList;
-  }
-
-  setInClosedList(value) {
-    this.#inClosedList = value;
-  }
-
-  getParentNode() {
-    return this.#parentNode;
-  }
-
-  setParentNode(node) {
-    this.#parentNode = node;
-  }
-
-  getMoveNeighbours() {
-    if (this.#moveNeighbours.length === 0) {
-      this.#findMoveNeighbours();
-    }
-
-    return this.#moveNeighbours;
-  }
-
-  #findMoveNeighbours() {
-    if (this.#x - 2 >= 0) {
-      if (this.#y - 1 >= 0) {
-        const neighbour = this.#board[x-2][y-1];
-        neighbour.parentNode = node;
-        moves.push(neighbour);
-      }
-
-      if (y + 1 < this.dimension) {
-        const neighbour = this.#board[x-2][y+1];
-        neighbour.parentNode = node;
-        moves.push(neighbour);
-      }
-    }
-
-    if (x + 2 < this.dimension) {
-      if (y - 1 >= 0) {
-        const neighbour = this.#board[x+2][y-1];
-        neighbour.parentNode = node;
-        moves.push(neighbour);
-      }
-
-      if (y + 1 < this.dimension) {
-        const neighbour = this.#board[x+2][y+1];
-        neighbour.parentNode = node;
-        moves.push(neighbour);
-      }
-    }
-
-    if (y - 2 >= 0) {
-      if (x - 1 >= 0) {
-        const neighbour = this.#board[x-1][y-2];
-        neighbour.parentNode = node;
-        moves.push(neighbour);
-      }
-
-      if (x + 1 < this.dimension) {
-        const neighbour = this.#board[x+1][y-2];
-        neighbour.parentNode = node;
-        moves.push(neighbour);
-      }
-    }
-
-    if (y + 2 < this.dimension) {
-      if (x - 1 >= 0) {
-        const neighbour = this.#board[x-1][y+2];
-        neighbour.parentNode = node;
-        moves.push(neighbour);
-      }
-
-      if (x + 1 < this.dimension) {
-        const neighbour = this.#board[x+1][y+2];
-        neighbour.parentNode = node;
-        moves.push(neighbour);
-      }
-    }
-  }
-
-  reset() {
-    this.#f = -1;
-    this.#g = -1;
-    this.#h = -1;
-    this.#inOpenList = false;
-    this.#inClosedList = false;
-    this.#parentNode = null;
-  }
-
-  computeEuclideanDist(destNode) {
-    let distX = Math.pow(Math.abs(this.x - destNode.x), 2);
-    let distY = Math.pow(Math.abs(this.y - destNode.y), 2);
-    return distX + distY;
-  }
-}
+import { Node } from "./node.js";
 
 export class AStar {
   #openList = [];
@@ -181,5 +26,45 @@ export class AStar {
     this.#closedList = [];
   }
 
-  
+  findPath(startNode, destNode) {
+    const openArr = [];
+    const closedArr = [];
+    openArr.push(startNode);
+
+    while (openArr.length > 0) {
+      openArr.sort((a, b) => a.f - b.f);
+      const currNode = openArr.shift();
+
+      // generate 8 successors and set their parents to q
+      const successors = this.#findPossibleMoves(currNode);
+      // foreach successor
+      successors.forEach((succ) => {
+        // if succ === dest, stop search
+        // else
+            // succ.g = q.g + dist between succ and q
+            // succ.h = dist from dest to succ / use euclidean heuristics
+            // succ.f = succ.g + succ.h
+        if (succ === destNode)
+          break;
+        
+        succ.g = currNode.g + succ.computeEuclideanDist(currNode);
+        succ.h = succ.computeEuclideanDist(destNode);
+        
+        // if succ already exists in open list and that succ.f is lower, skip
+        if (openArr.includes(succ) && succ.f < succ.g + succ.h)
+          continue;
+        
+        // if succ already exists in closed list and that succ.f is lower, skip
+        if (closedArr.includes(succ) && succ.f < succ.g + succ.h)
+          continue;
+        
+        openArr.push(succ);
+      })
+          
+    
+      closedArr.push(currNode);
+    }
+
+    return closedArr;
+  }
 }
