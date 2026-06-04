@@ -18,11 +18,12 @@ export class Node {
     this.#boardDim = boardDim;
   }
 
-  getCoords() {
-    return {
-      x: this.#x,
-      y: this.#y
-    };
+  getX() {
+    return this.#x;
+  }
+
+  getY() {
+    return this.#y;
   }
 
   getFCost() {
@@ -73,68 +74,60 @@ export class Node {
     this.#parentNode = node;
   }
 
-  getMoveNeighbours() {
+  getMoveNeighbours(board) {
     if (this.#moveNeighbours.length === 0) {
-      this.#findMoveNeighbours();
+      this.#findMoveNeighbours(board);
     }
 
     return this.#moveNeighbours;
   }
 
-  #findMoveNeighbours() {
+  #findMoveNeighbours(board) {
     if (this.#x - 2 >= 0) {
       if (this.#y - 1 >= 0) {
-        const neighbour = this.#board[x-2][y-1];
-        neighbour.parentNode = node;
-        moves.push(neighbour);
+        const neighbour = board[this.#x-2][this.#y-1];
+        this.#moveNeighbours.push(neighbour);
       }
 
-      if (y + 1 < this.dimension) {
-        const neighbour = this.#board[x-2][y+1];
-        neighbour.parentNode = node;
-        moves.push(neighbour);
+      if (this.#y + 1 < this.#boardDim) {
+        const neighbour = board[this.#x-2][this.#y+1];
+        this.#moveNeighbours.push(neighbour);
       }
     }
 
-    if (x + 2 < this.dimension) {
-      if (y - 1 >= 0) {
-        const neighbour = this.#board[x+2][y-1];
-        neighbour.parentNode = node;
-        moves.push(neighbour);
+    if (this.#x + 2 < this.#boardDim) {
+      if (this.#y - 1 >= 0) {
+        const neighbour = board[this.#x+2][this.#y-1];
+        this.#moveNeighbours.push(neighbour);
       }
 
-      if (y + 1 < this.dimension) {
-        const neighbour = this.#board[x+2][y+1];
-        neighbour.parentNode = node;
-        moves.push(neighbour);
+      if (this.#y + 1 < this.#boardDim) {
+        const neighbour = board[this.#x+2][this.#y+1];
+        this.#moveNeighbours.push(neighbour);
       }
     }
 
-    if (y - 2 >= 0) {
-      if (x - 1 >= 0) {
-        const neighbour = this.#board[x-1][y-2];
-        neighbour.parentNode = node;
-        moves.push(neighbour);
+    if (this.#y - 2 >= 0) {
+      if (this.#x - 1 >= 0) {
+        const neighbour = board[this.#x-1][this.#y-2];
+        this.#moveNeighbours.push(neighbour);
       }
 
-      if (x + 1 < this.dimension) {
-        const neighbour = this.#board[x+1][y-2];
-        neighbour.parentNode = node;
-        moves.push(neighbour);
+      if (this.#x + 1 < this.#boardDim) {
+        const neighbour = board[this.#x+1][this.#y-2];
+        this.#moveNeighbours.push(neighbour);
       }
     }
 
-    if (y + 2 < this.dimension) {
-      if (x - 1 >= 0) {
-        const neighbour = this.#board[x-1][y+2];
-        neighbour.parentNode = node;
-        moves.push(neighbour);
+    if (this.#y + 2 < this.#boardDim) {
+      if (this.#x - 1 >= 0) {
+        const neighbour = board[this.#x-1][this.#y+2];
+        this.#moveNeighbours.push(neighbour);
       }
 
-      if (x + 1 < this.dimension) {
-        const neighbour = this.#board[x+1][y+2];
-        neighbour.parentNode = node;
-        moves.push(neighbour);
+      if (this.#x + 1 < this.#boardDim) {
+        const neighbour = board[this.#x+1][this.#y+2];
+        this.#moveNeighbours.push(neighbour);
       }
     }
   }
@@ -149,8 +142,8 @@ export class Node {
   }
 
   computeEuclideanDist(destNode) {
-    let distX = Math.pow(Math.abs(this.x - destNode.x), 2);
-    let distY = Math.pow(Math.abs(this.y - destNode.y), 2);
+    let distX = Math.pow(Math.abs(this.#x - destNode.getX()), 2);
+    let distY = Math.pow(Math.abs(this.#y - destNode.getY()), 2);
     return distX + distY;
   }
 }

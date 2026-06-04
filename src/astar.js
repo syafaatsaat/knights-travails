@@ -3,16 +3,19 @@ import { Node } from "./node.js";
 export class AStar {
   #openList = [];
   #closedList = [];
+  #board;
   
-  constructor() {}
+  constructor(board) {
+    this.#board = board;
+  }
 
   #pushToOpenList(node) {
     this.#openList.push(node);
-    openArr.sort((a, b) => a.f - b.f);
     node.setInOpenList(true);
   }
 
   #shiftFromOpenList() {
+    this.#openList.sort((a, b) => a.f - b.f);
     const node = this.#openList.shift();
     node.setInOpenList(false);
     return node;
@@ -27,11 +30,10 @@ export class AStar {
   }
 
   #createPath(node, path) {
-    const parentNode = node.getParentNode();
-
+    let parentNode = node.getParentNode();
     path.push(node);
 
-    while (parentNode) {
+    while (parentNode != null) {
       path.push(parentNode);
       parentNode = parentNode.getParentNode();
     }
@@ -44,18 +46,18 @@ export class AStar {
 
     this.#pushToOpenList(startNode);
 
-    while (openArr.length > 0) {
+    while (this.#openList.length > 0) {
       const currNode = this.#shiftFromOpenList();
       
       this.#closedList.push(currNode);
       currNode.setInClosedList(true);
 
       if (currNode === destNode) {
-        this.createPath(currNode, path);
+        this.#createPath(currNode, path);
         return true;
       }
       
-      const moveNeighbours = currNode.getMoveNeighbours();
+      const moveNeighbours = currNode.getMoveNeighbours(this.#board);
       moveNeighbours.forEach((neighbourNode) => {
         gCost = currNode.getGCost() + 
           neighbourNode.computeEuclideanDist(currNode);
@@ -63,7 +65,7 @@ export class AStar {
         if ((neighbourNode.getInOpenList() || neighbourNode.getInClosedList()) 
           && neighbourNode.getGCost() < gCost) 
         {
-          continue;
+          return;
         }
 
         neighbourNode.setParentNode(currNode);

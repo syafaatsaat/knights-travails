@@ -2,15 +2,16 @@ import { Node } from "./node.js";
 import { AStar } from "./astar.js";
 
 export class Board {
-  #board = [];
-  #aStar = new AStar();
+  #board;
+  #aStar;
   
   constructor(len=8) {
-    this.#board = Array.from({length: len}, (indexX) => 
+    this.#board = Array.from({length: len}, (_, indexX) => (
       Array.from(
-        {length: len}, (indexY) => new Node(indexX, indexY, len)
+        {length: len}, (_, indexY) => (new Node(indexX, indexY, len))
       )
-    );
+    ));
+    this.#aStar = new AStar(this.#board);
   }
 
   #getNode(posX, posY) {
@@ -40,7 +41,7 @@ export class Board {
     
     console.log(`You made it in ${moves.length} moves! Here's your path:`);
     moves.forEach((coords) => {
-      console.log(coords);
+      console.log(`[${coords.getX()},${coords.getY()}]`);
     });
   }
 }
